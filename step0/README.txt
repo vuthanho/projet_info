@@ -5,13 +5,16 @@ Votre tâche sera de le compléter.
 Le répertoire est organisé ainsi : 
 .
 ├── tests
-│   └── miam.s
+│   ├── miam.s
+│   └── test.s
 ├── src
 │   ├── main.c
+│   ├── automate.c
 │   └── lex.c
 ├── include
 │   ├── notify.h
-│   ├── lex.h
+│   ├── structure.h
+│   ├── declaration.h
 │   └── global.h
 ├── doc
 │   └── livrables
