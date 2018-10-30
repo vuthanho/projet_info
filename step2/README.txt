@@ -10,6 +10,7 @@ Le répertoire est organisé ainsi :
 ├── src
 │   ├── main.c
 │   ├── automate.c
+│   ├── grammaire.c
 │   └── lex.c
 ├── include
 │   ├── notify.h
