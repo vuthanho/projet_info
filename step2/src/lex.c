@@ -107,7 +107,7 @@ char* getNextToken(char** token, char* current_line, int n_ligne, L_lexem* p_L, 
 
     /*compute size : if zero there is no more token to extract*/
     token_size=end-start;
-    if (token_size>0)
+    if ( (token_size>0) && (type != 8) )
     {
       *token 	= calloc(token_size+1,sizeof(*start));
       strncpy(*token,start,token_size);
@@ -118,17 +118,27 @@ char* getNextToken(char** token, char* current_line, int n_ligne, L_lexem* p_L, 
       n_lex.nom = calloc(token_size+1,sizeof(*start));
 /*      n_lex.nom = strdup(*token);  /!\ segfault POURQUOI? */
       strncpy(n_lex.nom,start,token_size);
-
       *p_L = ajoute_lex(n_lex, *p_L);
+
       if(type == 1)
       {
         *p_Ls = ajoute_lex(n_lex, *p_Ls);
       }
       return end;
     }
+    if (type == 8){
+      if ( ((*p_L)->val).type == 1 ){
+        ((*p_L)->val).type = 5;
+        /* ajouter une instruction permettant de compléter le dico des étiquettes */
+        return end;
+      }
+      else {
+        ERROR_MSG("Error line %d : symbol expected before ':'",n_ligne);
+      }
+    }
     if(type==0)
     {
-      WARNING_MSG("CARACTERE INATTENDU ligne %d", n_ligne);
+      WARNING_MSG("UNKNOWN CHAR line %d --- ignored", n_ligne);
       end++;
       return getNextToken(token, end, n_ligne, p_L, endline, p_Ls);
     }
@@ -152,12 +162,15 @@ void lex_read_line( char *line, int nline, L_lexem* p_L, char* endline, L_lexem*
     int etat=-1;
     while( (current_address= getNextToken(&token, current_address, nline, p_L, endline, p_Ls)) != NULL)
     {
-      etat = is_new_section( ((*p_L) -> val) );
-      if (etat != 4) /* actualisation de *p_etat si nouvelle section */
+      etat = is_new_section( ((*p_L) -> val), *p_etat );
+      if ((etat != 4) && (etat != -1)) /* actualisation de *p_etat si nouvelle section */
       {
         *p_etat = etat;
         first_check(&token, &current_address, nline, p_L, endline, p_Ls, etat);
         print_section(etat);
+      }
+      if (etat == -1){
+        ERROR_MSG("Error line %d : unexpected directive \"%s\" ", nline, ((*p_L) -> val).nom );
       }
       afficher_lexem( ((*p_L) -> val) );
     }

@@ -12,7 +12,7 @@ void lex_read_line( char *line, int nline, L_lexem* p_L, char* endline, L_lexem*
 void lex_load_file( char *file, unsigned int *nlines, L_lexem* p_L, L_lexem* p_Ls );
 int isseparateur(char* position);
 int automate(char** p_end, char* endline );
-int is_new_section( T_lexem lex );
+int is_new_section( T_lexem lex, int etat );
 void first_check( char** token, char** p_current_adress, int n_ligne, L_lexem* p_L, char* endline, L_lexem* p_Ls, int etat);
 void print_section(int etat);
 

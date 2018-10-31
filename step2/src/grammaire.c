@@ -10,7 +10,7 @@
 #include "structure.h"
 #include "declaration.h"
 
-int is_new_section( T_lexem lex )
+int is_new_section( T_lexem lex, int etat )
 {
   if (lex.type == 11)
   {
@@ -32,7 +32,22 @@ int is_new_section( T_lexem lex )
         }
         else
         {
-          return 4; /* rajouter un test pour savoir si cette directive est répertoriée? */
+          switch (etat){
+            case 2: /* Si on est dans une section data */
+              if (strcmp(".word",lex.nom) && strcmp(".byte",lex.nom) && strcmp(".asciiz",lex.nom) && strcmp(".space",lex.nom)){
+                return -1;
+              }
+              break;
+            case 3: /* Si on est dans une section bss */
+              if (strcmp(".space",lex.nom)){
+                return -1;
+              }
+              break;
+            default: /* Sinon il ne devrait pas y avoir de directive */
+              return -1;
+              break;
+          }
+          return 4;
         }
   }
   return 4;

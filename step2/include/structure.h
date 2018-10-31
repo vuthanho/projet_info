@@ -13,6 +13,13 @@ typedef struct lsuiv{
   struct lsuiv* suiv;
 }* L_lexem;
 
+typedef struct maillon {
+  void*
+  pval;
+  struct maillon *suiv;
+} *LISTE_GENERIQUE;
+
+
 enum type_lex{symbole, val_dec, val_hex, registre, etiquette, comment, new_line, deux_points, virgule, parenthese, directive, chaine_car};
 
 
