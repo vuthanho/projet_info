@@ -152,3 +152,18 @@ void free_dico(inst_def* dico, int nb_inst){
   free(dico);
   dico = NULL;
 }*/
+
+int check_reg(T_lexem reg){
+  int i = 0;
+  return rec_check_reg(reg,i);
+}
+
+int rec_check_reg(T_lexem reg,int i){
+  if (i==32){
+    return -1;
+  }
+  if (strcmp(reg.nom+1,reg_mnem_list[i])){
+    return rec_check_reg(reg,i+1);
+  }
+  return i;
+}
