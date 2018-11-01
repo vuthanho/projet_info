@@ -19,7 +19,7 @@ typedef struct maillon {
   struct maillon *suiv;
 } *LISTE_GENERIQUE;
 
-
+typedef struct { char instruction[5]; char regle[4];} inst_def;
 enum type_lex{symbole, val_dec, val_hex, registre, etiquette, comment, new_line, deux_points, virgule, parenthese, directive, chaine_car};
 
 

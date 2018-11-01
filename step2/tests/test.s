@@ -1,4 +1,6 @@
 #ceci est un commentaire
 .set noreorder
 .text
-etiq : .word asciiz "test"
+etiq : ADD $1,$2,$3
+.data
+.word "test"

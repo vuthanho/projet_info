@@ -1,6 +1,4 @@
 Squelette de code de l'assembleur MIPS du projet info PHELMA.
-Le code fourni permet d'acquérir des chaînes de caractères d'un fichier et de les afficher à l'écran. 
-Votre tâche sera de le compléter.  
 
 Le répertoire est organisé ainsi : 
 .
@@ -17,6 +15,8 @@ Le répertoire est organisé ainsi :
 │   ├── structure.h
 │   ├── declaration.h
 │   └── global.h
+├── dico
+│   └── dico_instr.txt
 ├── doc
 │   └── livrables
 ├── README.txt
@@ -64,3 +64,12 @@ un Doxyfile qui ira bien pour ce que vous avez a faire).
 
 Note : il faut avoir installé le package doxygen. Sous Ubuntu / Debian, tapez : 
 sudo apt-get install doxygen
+
+--- Erreurs détectées
+
+* Les caractères n'ayant rien à faire dans un fichier .s
+* Les directives non répertoriées
+  -> .word | .byte | .asciiz | .space sont les seules directives acceptées dans la section .data
+  -> .space est la seule directive acceptée dans la section .bss
+* Les directives dans une section .text
+* Seule l'instruction noreorder est acceptée dans la section .set

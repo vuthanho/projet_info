@@ -11,13 +11,17 @@
 #include "declaration.h"
 
 
-void free_liste(L_lexem L)
+void free_liste(L_lexem L, int option)
 {
+  /* Si option = 0 la liste complète est à vider */
+  /* Si option = 1 seuls les maillons sont à vider */
   while(L != NULL)
   {
-    free((L->val).nom);
-    (L->val).nom = NULL;
-    free_liste(L->suiv);
+    if (option == 0){
+      free((L->val).nom);
+      (L->val).nom = NULL;
+    }
+    free_liste(L->suiv,option);
     free(L);
     L = NULL;
   }
@@ -109,6 +113,7 @@ char* getNextToken(char** token, char* current_line, int n_ligne, L_lexem* p_L, 
     token_size=end-start;
     if ( (token_size>0) && (type != 8) )
     {
+      free(*token);
       *token 	= calloc(token_size+1,sizeof(*start));
       strncpy(*token,start,token_size);
       (*token)[token_size]='\0';
@@ -117,7 +122,7 @@ char* getNextToken(char** token, char* current_line, int n_ligne, L_lexem* p_L, 
       n_lex.n_ligne = n_ligne;
       n_lex.nom = calloc(token_size+1,sizeof(*start));
 /*      n_lex.nom = strdup(*token);  /!\ segfault POURQUOI? */
-      strncpy(n_lex.nom,start,token_size);
+      strcpy(n_lex.nom,*token);
       *p_L = ajoute_lex(n_lex, *p_L);
 
       if(type == 1)
@@ -127,7 +132,8 @@ char* getNextToken(char** token, char* current_line, int n_ligne, L_lexem* p_L, 
       return end;
     }
     if (type == 8){
-      if ( ((*p_L)->val).type == 1 ){
+      /* détection d'une étiquette */
+      if ( (((*p_L)->val).type == 1) && (((*p_L)->val).n_ligne == n_ligne) ){
         ((*p_L)->val).type = 5;
         /* ajouter une instruction permettant de compléter le dico des étiquettes */
         return end;
@@ -138,7 +144,7 @@ char* getNextToken(char** token, char* current_line, int n_ligne, L_lexem* p_L, 
     }
     if(type==0)
     {
-      WARNING_MSG("UNKNOWN CHAR line %d --- ignored", n_ligne);
+      ERROR_MSG("UNKNOWN CHAR line %d : '%c' ", n_ligne, *end);
       end++;
       return getNextToken(token, end, n_ligne, p_L, endline, p_Ls);
     }
@@ -155,11 +161,11 @@ char* getNextToken(char** token, char* current_line, int n_ligne, L_lexem* p_L, 
  * @brief This function performs lexical analysis of one standardized line.
  *
  */
-void lex_read_line( char *line, int nline, L_lexem* p_L, char* endline, L_lexem* p_Ls, int* p_etat, int* p_decal_text, int* p_decal_data, int* p_decal_bss )
+void lex_read_line( char *line, int nline, L_lexem* p_L, char* endline, L_lexem* p_Ls, int* p_etat)
 {
     char* token = NULL;
     char* current_address=line;
-    int etat=-1;
+    int etat;
     while( (current_address= getNextToken(&token, current_address, nline, p_L, endline, p_Ls)) != NULL)
     {
       etat = is_new_section( ((*p_L) -> val), *p_etat );
@@ -167,12 +173,10 @@ void lex_read_line( char *line, int nline, L_lexem* p_L, char* endline, L_lexem*
       {
         *p_etat = etat;
         first_check(&token, &current_address, nline, p_L, endline, p_Ls, etat);
-        print_section(etat);
       }
       if (etat == -1){
         ERROR_MSG("Error line %d : unexpected directive \"%s\" ", nline, ((*p_L) -> val).nom );
       }
-      afficher_lexem( ((*p_L) -> val) );
     }
     free(token);
     token = NULL;
@@ -202,6 +206,7 @@ void lex_load_file( char *file, unsigned int *nlines, L_lexem* p_L, L_lexem* p_L
     }
 
     *nlines = 0;
+    int etat = -1; /* etat contient le type d'instruction attendu .set | .text | .data | .bss | error */
 
     while(!feof(fp)) {
 
@@ -217,18 +222,13 @@ void lex_load_file( char *file, unsigned int *nlines, L_lexem* p_L, L_lexem* p_L
               char* saut = "\n";
               strcpy(n_lex.nom,saut);
               *p_L = ajoute_lex(n_lex, *p_L);
-              afficher_lexem( ((*p_L) -> val) );
             }
             char* endline = line+strlen(line);
             line[strlen(line)-1] = '\0';  /* eat final '\n' */
             (*nlines)++;
-            int etat = -1; /* etat contient le type d'instruction attendu .set | .text | .data | .bss | error */
-            int decal_text = 0;
-            int decal_data = 0;
-            int decal_bss = 0;
             if ( 0 != strlen(line) )
             {
-                lex_read_line(line, *nlines, p_L,endline, p_Ls, &etat, &decal_text, &decal_data, &decal_bss);
+                lex_read_line(line, *nlines, p_L,endline, p_Ls, &etat);
             }
 
         }

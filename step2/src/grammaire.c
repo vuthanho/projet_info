@@ -34,12 +34,12 @@ int is_new_section( T_lexem lex, int etat )
         {
           switch (etat){
             case 2: /* Si on est dans une section data */
-              if (strcmp(".word",lex.nom) && strcmp(".byte",lex.nom) && strcmp(".asciiz",lex.nom) && strcmp(".space",lex.nom)){
+              if ( !strcmp(".word",lex.nom) && !strcmp(".byte",lex.nom) && !strcmp(".asciiz",lex.nom) && !strcmp(".space",lex.nom) ){
                 return -1;
               }
               break;
             case 3: /* Si on est dans une section bss */
-              if (strcmp(".space",lex.nom)){
+              if (!strcmp(".space",lex.nom)){
                 return -1;
               }
               break;
@@ -58,7 +58,6 @@ void first_check( char** token, char** p_current_adress, int n_ligne, L_lexem* p
   switch (etat)
   {
     case 0:
-      afficher_lexem( ((*p_L) -> val) );
       *p_current_adress = getNextToken( token, *p_current_adress, n_ligne, p_L, endline, p_Ls);
       if ( strcmp( ((*p_L)->val).nom, "noreorder") )
       {
@@ -110,3 +109,46 @@ void print_section(int etat)
       break;
   }
 }
+
+inst_def* load_dico(char* chemin_dico, int* p_nb_inst){
+  FILE* dico;
+  int i;
+  /*char s[512];*/
+  inst_def* tab;
+  dico = fopen(chemin_dico,"r");
+  if (dico == NULL){
+    WARNING_MSG("Empty instruction dictionary");
+    return NULL;
+  }
+  if (fscanf(dico,"%d",p_nb_inst) != 1){
+    WARNING_MSG("Empty instruction dictionary");
+    return NULL;
+  }
+  tab = calloc(*p_nb_inst,sizeof(*tab));
+  if (tab == NULL){
+    WARNING_MSG("Empty instruction dictionary");
+    return NULL;
+  }
+  for (i=0;i<*p_nb_inst;i++){
+
+    if (fscanf(dico,"%s %s",&(tab[i].instruction),&(tab[i].regle)) != 2){
+      free(tab);
+      return NULL;
+    }
+/*    tab[i].instruction=calloc(1,sizeof(s));
+    strcpy(tab[i].instruction,s);*/
+  }
+  fclose(dico);
+  return tab;
+}
+
+/*
+void free_dico(inst_def* dico, int nb_inst){
+  int i;
+  for (i=0;i<nb_inst;i++){
+    free(dico[i].instruction);
+    dico[i].instruction = NULL;
+  }
+  free(dico);
+  dico = NULL;
+}*/
