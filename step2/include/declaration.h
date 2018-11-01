@@ -1,10 +1,11 @@
 #ifndef _declaration_H_
 #define _declaration_H_
-#define reg_elmt {"zero","at","v0","v1","a0","a1","a2","a3","t0","t1","t2","t3","t4","t5","t6","t7","s0","s1","s2","s3","s4","s5","s6","s7","t8","t9","k0","k1","gp","sp","fp","ra"};
-char* reg_mnem_list[] = reg_elmt;
+
+
+#define reg_elmt {"zero","at","v0","v1","a0","a1","a2","a3","t0","t1","t2","t3","t4","t5","t6","t7","s0","s1","s2","s3","s4","s5","s6","s7","t8","t9","k0","k1","gp","sp","fp","ra"}
 #include <structure.h>
 
-
+extern char* reg_mnem_list[];
 
 L_lexem ajoute_lex(T_lexem lex, L_lexem L);
 void afficher_lexem(T_lexem lex);

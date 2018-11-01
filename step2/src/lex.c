@@ -129,6 +129,10 @@ char* getNextToken(char** token, char* current_line, int n_ligne, L_lexem* p_L, 
       {
         *p_Ls = ajoute_lex(n_lex, *p_Ls);
       }
+
+      if(type==4){
+        check_reg(n_lex);
+      }
       return end;
     }
     if (type == 8){

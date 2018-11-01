@@ -10,6 +10,8 @@
 #include "structure.h"
 #include "declaration.h"
 
+char* reg_mnem_list[] = reg_elmt;
+
 int is_new_section( T_lexem lex, int etat )
 {
   if (lex.type == 11)
@@ -159,10 +161,12 @@ int check_reg(T_lexem reg){
 }
 
 int rec_check_reg(T_lexem reg,int i){
+  char reg_test[3];
+  sprintf (reg_test,"%d",i);
   if (i==32){
-    return -1;
+    ERROR_MSG("Unknown register : '%s'",reg.nom);
   }
-  if (strcmp(reg.nom+1,reg_mnem_list[i])){
+  if (strcmp(reg.nom+1,reg_mnem_list[i]) && strcmp(reg.nom+1,reg_test) ){
     return rec_check_reg(reg,i+1);
   }
   return i;
