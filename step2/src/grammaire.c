@@ -222,7 +222,7 @@ void in_dico(T_lexem lex, char** p_regle,inst_def* dico,int nb_inst)
 {
   free(*p_regle);
   *p_regle = NULL;
-  int i;
+  int i=0;
   while( (*p_regle == NULL) && (i<nb_inst) )
   {
     if(!strcasecmp(dico[i].instruction, lex.nom))
@@ -230,6 +230,7 @@ void in_dico(T_lexem lex, char** p_regle,inst_def* dico,int nb_inst)
       *p_regle = malloc( strlen(dico[i].regle) );
       strcpy(*p_regle,dico[i].regle);
     }
+    i++;
   }
   ERROR_MSG("Instruction inconnu : %s",lex.nom);
 }

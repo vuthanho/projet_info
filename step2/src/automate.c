@@ -103,9 +103,19 @@ int automate(char** p_end, char* endline)
     if ( (**p_end == 48) && (*(*p_end+1) == 120)) /* 48 -> 0 ; 120 -> 'x' */
     {
       *p_end = *p_end + 2;
+      int compteur=0;
       while ( isalnum(**p_end) )
       {
+        if(!isxdigit(**p_end))
+        {
+          ERROR_MSG("Error : '%c' should not be an hexadecimal compound", **p_end);
+        }
         (*p_end)++;
+        compteur++;
+      }
+      if(compteur>6)
+      {
+        ERROR_MSG("Error : Hexadecimal can not be longer than 6 digits");
       }
       return 3;
     }

@@ -3,4 +3,4 @@
 .text
 etiq : ADD $ra,$2,$31
 .data
-.word "test"
+.word 0xA25F
