@@ -55,6 +55,29 @@ int is_new_section( T_lexem lex, int etat )
   return 4;
 }
 
+void update_etat(int* p_etat, T_lexem lex)
+{
+  if (lex.type == 11)
+  {
+        if (!strcmp(".set",lex.nom))
+        {
+          *p_etat = 0;
+        }
+        else if (!strcmp(".text",lex.nom))
+        {
+          *p_etat = 1;
+        }
+        else if (!strcmp(".data",lex.nom))
+        {
+          *p_etat = 2;
+        }
+        else if (!strcmp(".bss",lex.nom))
+        {
+          *p_etat = 3;
+        }
+  }
+}
+
 void first_check( char** token, char** p_current_adress, int n_ligne, L_lexem* p_L, char* endline, L_lexem* p_Ls, int etat)
 {
   switch (etat)
@@ -170,4 +193,43 @@ int rec_check_reg(T_lexem reg,int i){
     return rec_check_reg(reg,i+1);
   }
   return i;
+}
+
+LISTE_GENERIQUE add_liste_gen(void* elmt, LISTE_GENERIQUE Liste)
+{
+  LISTE_GENERIQUE nListe = malloc(sizeof(*nListe));
+  nListe -> pval = elmt;
+  nListe -> suiv = Liste;
+  return nListe;
+}
+
+void vider_Q_etiq(L_lexem Q_etiq, LISTE_GENERIQUE L_etiq, int section, int decalage)
+{
+  L_lexem a_vider = Q_etiq;
+  while(a_vider != NULL)
+  {
+    Etiquette etiq;
+    etiq.label = malloc(strlen( (a_vider->val).nom ));
+    strcpy(etiq.label,(a_vider->val).nom);
+    etiq.section = section;
+    etiq.decalage = decalage;
+    add_liste_gen(&etiq, L_etiq);
+  }
+  free_liste(Q_etiq,1);
+}
+
+void in_dico(T_lexem lex, char** p_regle,inst_def* dico,int nb_inst)
+{
+  free(*p_regle);
+  *p_regle = NULL;
+  int i;
+  while( (*p_regle == NULL) && (i<nb_inst) )
+  {
+    if(!strcasecmp(dico[i].instruction, lex.nom))
+    {
+      *p_regle = malloc( strlen(dico[i].regle) );
+      strcpy(*p_regle,dico[i].regle);
+    }
+  }
+  ERROR_MSG("Instruction inconnu : %s",lex.nom);
 }

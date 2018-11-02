@@ -23,5 +23,6 @@ inst_def* load_dico(char* chemin_dico, int* p_nb_inst);
 void free_dico(inst_def* dico, int nb_inst);
 int check_reg(T_lexem reg);
 int rec_check_reg(T_lexem reg,int i);
+void update_etat(int* p_etat, T_lexem lex);
 
 #endif

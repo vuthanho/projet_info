@@ -13,9 +13,14 @@ typedef struct lsuiv{
   struct lsuiv* suiv;
 }* L_lexem;
 
+typedef struct {
+  char* label;
+  int section;
+  int decalage;
+} Etiquette;
+
 typedef struct maillon {
-  void*
-  pval;
+  void* pval;
   struct maillon *suiv;
 } *LISTE_GENERIQUE;
 

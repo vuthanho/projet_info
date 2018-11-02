@@ -14,7 +14,7 @@
 void free_liste(L_lexem L, int option)
 {
   /* Si option = 0 la liste complète est à vider */
-  /* Si option = 1 seuls les maillons sont à vider */
+  /* Si option = 1 seuls les pointeurs sur maillons sont à vider */
   while(L != NULL)
   {
     if (option == 0){
@@ -114,6 +114,7 @@ char* getNextToken(char** token, char* current_line, int n_ligne, L_lexem* p_L, 
     if ( (token_size>0) && (type != 8) )
     {
       free(*token);
+      *token = NULL;
       *token 	= calloc(token_size+1,sizeof(*start));
       strncpy(*token,start,token_size);
       (*token)[token_size]='\0';
