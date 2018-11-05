@@ -17,10 +17,10 @@ int isseparateur(char* position)
       return 9;
       break;
     case 40: /* parenthese */
-      return 10;
+      return 6;
       break;
     case 41: /* parenthese */
-      return 10;
+      return 6;
       break;
     case 58: /* deux_points */
       return 8;
@@ -41,7 +41,7 @@ int automate(char** p_end, char* endline)
 
     *p_end = *p_end + strlen(*p_end);
 
-    return 6;
+    return 10;
   }
 
   /* détecte les chaines de caractères */

@@ -24,8 +24,8 @@ typedef struct maillon {
   struct maillon *suiv;
 } *LISTE_GENERIQUE;
 
-typedef struct { char instruction[5]; char regle[4];} inst_def;
-enum type_lex{symbole, val_dec, val_hex, registre, etiquette, comment, new_line, deux_points, virgule, parenthese, directive, chaine_car};
+typedef struct { char* instruction; char* regle;} inst_def;
+enum type_lex{symbole, val_dec, val_hex, registre, etiquette, parenthese, new_line, deux_points, virgule, comment, directive, chaine_car};
 
 
 /*
@@ -34,11 +34,11 @@ val_dec = 2
 val_hex = 3
 registre = 4
 etiquette = 5
-comment = 6
+parenthese = 6
 new_line = 7
 deux_points = 8
 virgule = 9
-parenthese = 10
+comment = 10
 directive = 11
 chaine de caractères = 12
 */

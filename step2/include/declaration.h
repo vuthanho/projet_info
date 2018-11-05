@@ -10,6 +10,7 @@ extern char* reg_mnem_list[];
 L_lexem ajoute_lex(T_lexem lex, L_lexem L);
 void afficher_lexem(T_lexem lex);
 void afficher_liste_lex(L_lexem L);
+L_lexem reverse_list_lex(L_lexem L);
 void free_liste(L_lexem L, int option);
 char* getNextToken( char** token, char* current_line, int n_ligne, L_lexem* p_L, char* endline, L_lexem* p_Ls);
 void lex_read_line( char *line, int nline, L_lexem* p_L, char* endline, L_lexem* p_Ls, int* p_etat);
@@ -24,5 +25,14 @@ void free_dico(inst_def* dico, int nb_inst);
 int check_reg(T_lexem reg);
 int rec_check_reg(T_lexem reg,int i);
 void update_etat(int* p_etat, T_lexem lex);
+LISTE_GENERIQUE add_debut_liste_gen(void* elmt, LISTE_GENERIQUE Liste);
+LISTE_GENERIQUE add_liste_gen(void* elmt, LISTE_GENERIQUE Liste);
+LISTE_GENERIQUE aux_add_liste_gen(void* elmt, LISTE_GENERIQUE Liste, LISTE_GENERIQUE Suivante);
+void vider_Q_etiq(L_lexem Q_etiq, LISTE_GENERIQUE* p_l_etiq, int section, int decalage);
+void in_dico(T_lexem lex, char** p_regle,inst_def* dico,int nb_inst);
+void get_arg(L_lexem lex, LISTE_GENERIQUE* p_liste_op);
+void verif_regle(char* regle, LISTE_GENERIQUE op);
+L_lexem rec_verif_gram(int n_line, L_lexem L, L_lexem* p_q_etiq, LISTE_GENERIQUE* p_l_etiq, int* p_etat, inst_def* dico,int nb_inst, int* p_decal_text, int* p_decal_data, int* p_decal_bss);
+void verif_gram(int nb_line, L_lexem L, LISTE_GENERIQUE* p_l_etiq, inst_def* dico,int nb_inst);
 
 #endif

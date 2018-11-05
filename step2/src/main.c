@@ -56,25 +56,26 @@ int main ( int argc, char *argv[] ) {
 
     L_lexem  L = NULL;
     L_lexem  L_symb = NULL;
+    LISTE_GENERIQUE l_etiq = NULL;
 
-    int decal_text = 0;
-    int decal_data = 0;
-    int decal_bss = 0;
     int nb_inst;
     inst_def* dico = load_dico("dico/dico_instr",&nb_inst);
 
     /* ---------------- do the lexical analysis -------------------*/
     lex_load_file( file, &nlines, &L, &L_symb);
     DEBUG_MSG("source code got %d lines", nlines);
+    L_lexem nL = reverse_list_lex(L);
+    free_liste(L,1);
+
+    
+    verif_gram(nlines, nL, &l_etiq, dico, nb_inst);
 
     /* ---------------- Free memory and terminate -------------------*/
 
     /* TODO free everything properly*/
 
-    afficher_liste_lex(L);
-    printf("\nLISTE DES SYMBOLES :\n");
-    afficher_liste_lex(L_symb);
-    free_liste(L,0);
+    afficher_liste_lex(nL);
+    free_liste(nL,0);
     free_liste(L_symb,1);
     free(dico);
     dico = NULL;

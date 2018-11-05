@@ -35,6 +35,18 @@ L_lexem ajoute_lex(T_lexem lex, L_lexem L)
   return nListe;
 }
 
+L_lexem reverse_list_lex(L_lexem L)
+{
+  L_lexem nListe = NULL;
+  L_lexem lex = L;
+  while(lex != NULL)
+  {
+    nListe = ajoute_lex(lex->val,nListe);
+    lex = lex->suiv;
+  }
+  return nListe;
+}
+
 void afficher_lexem(T_lexem lex)
 {
 
@@ -57,7 +69,7 @@ void afficher_lexem(T_lexem lex)
       printf("[ etiquette   ] %s\n",lex.nom);
       break;
     case 6:
-      printf("[ comment     ] %s\n",lex.nom);
+      printf("[ parenthese  ] %s\n",lex.nom);
       break;
     case 7:
       printf("[ new_line    ]   \n"        );
@@ -69,7 +81,7 @@ void afficher_lexem(T_lexem lex)
       printf("[ virgule     ] %s\n",lex.nom);
       break;
     case 10:
-      printf("[ parenthese  ] %s\n",lex.nom);
+      printf("[ comment     ] %s\n",lex.nom);
       break;
     case 11:
       printf("[ directive   ] %s\n",lex.nom);
@@ -84,8 +96,8 @@ void afficher_liste_lex(L_lexem L)
 {
   if(L!=NULL)
   {
-    afficher_liste_lex(L->suiv);
     afficher_lexem(L->val);
+    afficher_liste_lex(L->suiv);
   }
 }
 
@@ -124,7 +136,9 @@ char* getNextToken(char** token, char* current_line, int n_ligne, L_lexem* p_L, 
       n_lex.nom = calloc(token_size+1,sizeof(*start));
 /*      n_lex.nom = strdup(*token);  /!\ segfault POURQUOI? */
       strcpy(n_lex.nom,*token);
+
       *p_L = ajoute_lex(n_lex, *p_L);
+
 
       if(type == 1)
       {
