@@ -14,9 +14,7 @@ typedef struct lsuiv{
   int decalage;
   int nb_op;
   struct lsuiv* suiv;
-  struct lsuiv* arg1;
-  struct lsuiv* arg2;
-  struct lsuiv* arg3;
+  struct lsuiv* arg;
 }* L_lexem;
 
 
