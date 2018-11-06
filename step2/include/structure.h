@@ -10,21 +10,17 @@ typedef struct {
 
 typedef struct lsuiv{
   T_lexem val;
-  struct lsuiv* suiv;
-}* L_lexem;
-
-typedef struct {
-  char* label;
   int section;
   int decalage;
-} Etiquette;
+  int nb_op;
+  struct lsuiv* suiv;
+  struct lsuiv* arg1;
+  struct lsuiv* arg2;
+  struct lsuiv* arg3;
+}* L_lexem;
 
-typedef struct maillon {
-  void* pval;
-  struct maillon *suiv;
-} *LISTE_GENERIQUE;
 
-typedef struct { char* instruction; char* regle;} inst_def;
+typedef struct { char instruction[10]; char regle[10];} inst_def;
 enum type_lex{symbole, val_dec, val_hex, registre, etiquette, parenthese, new_line, deux_points, virgule, comment, directive, chaine_car};
 
 

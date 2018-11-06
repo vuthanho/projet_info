@@ -1,4 +1,5 @@
 #commentaire
 .set noreorder
 .text
-etiq : ADD $ra,$2,$31,
+etiq :
+etiq2: add $ra$2,$31

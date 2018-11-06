@@ -56,7 +56,7 @@ int main ( int argc, char *argv[] ) {
 
     L_lexem  L = NULL;
     L_lexem  L_symb = NULL;
-    LISTE_GENERIQUE l_etiq = NULL;
+    L_lexem  l_etiq = NULL;
 
     int nb_inst;
     inst_def* dico = load_dico("dico/dico_instr",&nb_inst);
@@ -66,17 +66,17 @@ int main ( int argc, char *argv[] ) {
     DEBUG_MSG("source code got %d lines", nlines);
     L_lexem nL = reverse_list_lex(L);
     free_liste(L,1);
+    afficher_liste_lex(nL);
 
-    
     verif_gram(nlines, nL, &l_etiq, dico, nb_inst);
 
     /* ---------------- Free memory and terminate -------------------*/
 
     /* TODO free everything properly*/
 
-    afficher_liste_lex(nL);
     free_liste(nL,0);
     free_liste(L_symb,1);
+    free_liste(l_etiq,1);
     free(dico);
     dico = NULL;
     exit( EXIT_SUCCESS );
