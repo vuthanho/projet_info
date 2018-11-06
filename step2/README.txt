@@ -75,3 +75,10 @@ sudo apt-get install doxygen
 * Seule l'instruction noreorder est acceptée dans la section .set
 * Les erreurs de registre
 * Les erreurs sur les nombres hexadécimaux
+* Les instructions non répertoriées
+* Les erreurs sur les opérandes
+  -> pas le bon nombre d'opérandes
+  -> pas le bon type d'opérande
+* Les erreurs liées à la ponctuation
+  -> parenthèses
+  -> virgules (sauf l'absence de virgule entre les opérandes ex : ADD &1,&2&3 passe encore aux tests)
