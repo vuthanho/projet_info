@@ -1,5 +1,2 @@
-#commentaire
-.set noreorder
 .text
-etiq :
-etiq2: add $ra$2,$31
+BEQ $t0 , $t1 , error

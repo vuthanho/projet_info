@@ -41,7 +41,7 @@ int is_new_section( T_lexem lex, int etat )
               }
               break;
             case 3: /* Si on est dans une section bss */
-              if (!strcmp(".space",lex.nom)){
+              if (strcmp(".space",lex.nom)){
                 return -1;
               }
               break;
@@ -229,7 +229,7 @@ void get_arg(L_lexem lex, L_lexem* p_liste_op)
   int nb_virg = 0;
   L_lexem op = lex->suiv;
   int nb_op = 0;
-  while( (op != NULL) && ((op->val).n_ligne == n_line) )
+  while( (op != NULL) && ((op->val).n_ligne == n_line) && ((op->val).type != 7))
   {
     if (nb_parenthese<0){
       ERROR_MSG("Error : missing '(' before ')' line %d",n_line);
@@ -248,6 +248,7 @@ void get_arg(L_lexem lex, L_lexem* p_liste_op)
         else {
           nb_parenthese--;
         }
+        nb_op++;
         *p_liste_op = ajoute_lex(op->val,*p_liste_op);
         break;
       default:
@@ -266,10 +267,13 @@ void get_arg(L_lexem lex, L_lexem* p_liste_op)
     ERROR_MSG("Error : missing argument after ',' line %d",n_line);
   }
   lex->nb_op = nb_op;
-  L_lexem temp = *p_liste_op;
-  *p_liste_op = reverse_list_lex(temp); /* on remet les opérandes dans le bonne ordre */
-  free_liste(temp,1);
-  temp = NULL;
+  if (nb_op != 0)
+  {
+    L_lexem temp = *p_liste_op;
+    *p_liste_op = reverse_list_lex(temp); /* on remet les opérandes dans le bonne ordre */
+    free_liste(temp,1);
+    temp = NULL;
+  }
 }
 
 void verif_regle(char* regle, L_lexem op, int nb_op)
@@ -291,12 +295,12 @@ void verif_regle(char* regle, L_lexem op, int nb_op)
     {
       isok = 0;
     }
+    if (!isok)
+    {
+      ERROR_MSG("Error : wrong type of argument line %d",(op_lu->val).n_ligne);
+    }
     op_lu = op_lu->suiv;
     op_voulu = op_voulu+1;
-  }
-  if (!isok)
-  {
-    ERROR_MSG("Error : wrong type of argument line %d",(op_lu->val).n_ligne);
   }
 }
 
@@ -308,6 +312,10 @@ L_lexem rec_verif_gram(int n_line, L_lexem L, L_lexem* p_q_etiq, L_lexem* p_l_et
   if ((L->val).type == 5)
   {
     *p_q_etiq = ajoute_lex(L->val,*p_q_etiq);
+    return rec_verif_gram(n_line, L->suiv, p_q_etiq, p_l_etiq, p_etat, dico, nb_inst, p_decal_text, p_decal_data, p_decal_bss);
+  }
+  if (((L->val).type == 10)||((L->val).type == 7))
+  {
     return rec_verif_gram(n_line, L->suiv, p_q_etiq, p_l_etiq, p_etat, dico, nb_inst, p_decal_text, p_decal_data, p_decal_bss);
   }
   update_etat(p_etat,L->val);
@@ -328,7 +336,16 @@ L_lexem rec_verif_gram(int n_line, L_lexem L, L_lexem* p_q_etiq, L_lexem* p_l_et
     liste_op = NULL;
     free(regle);
     regle = NULL;
-
+    L_lexem end_line = L;
+    while ( (end_line != NULL) && ((end_line->val).n_ligne == n_line) )
+    {
+      end_line = end_line->suiv;
+    }
+    return rec_verif_gram(n_line, end_line, p_q_etiq, p_l_etiq, p_etat, dico, nb_inst, p_decal_text, p_decal_data, p_decal_bss);
+  }
+  if (*p_etat == -1)
+  {
+    ERROR_MSG("Il n'y a pas de fumée sans feu. Le feu ici étant la déclaration d'une section.");
   }
   return rec_verif_gram(n_line, L->suiv, p_q_etiq, p_l_etiq, p_etat, dico, nb_inst, p_decal_text, p_decal_data, p_decal_bss);
 }
