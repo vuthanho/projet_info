@@ -270,7 +270,7 @@ void get_arg(L_lexem lex)
 
 }
 
-void verif_regle(char* regle,L_lexem first_op, int nb_op)
+void verif_regle(char* regle,L_lexem first_op, int nb_op, int decal_text)
 {
   if (strlen(regle) > nb_op)
   {
@@ -285,6 +285,7 @@ void verif_regle(char* regle,L_lexem first_op, int nb_op)
   char* op_voulu = regle;
   while(isok && (op_lu != NULL) )
   {
+    op_lu->decalage = decal_text;
     if( *op_voulu-'0' != (op_lu->val).type)
     {
       isok = 0;
@@ -297,13 +298,26 @@ void verif_regle(char* regle,L_lexem first_op, int nb_op)
     op_voulu = op_voulu+1;
   }
 }
-/*
-void verif_data(L_lexem lex, L_lexem liste_op, int* p_decal_data)
-{
-  L_lexem op = liste_op;
 
+void verif_data(L_lexem lex, int* p_decal_data)
+{
+  L_lexem op = lex->arg;
+  if( !strcmp(".word", (lex->val).nom) )
+  {
+    *p_decal_data = 4*((*p_decal_data)/4)+4*((*p_decal_data)%4 != 0);
+    while(op!=NULL)
+    {
+      if( ((op->val).type != 1) && ((op->val).type != 2) && ((op->val).type != 3) )
+      {
+        ERROR_MSG("Error : wrong type of argument line %d",(op->val).n_ligne);
+      }
+
+
+      op = op->arg;
+    }
+  }
 }
-*/
+
 
 L_lexem rec_verif_gram(int n_line, L_lexem L, L_lexem* p_q_etiq, L_lexem* p_l_etiq, int* p_etat, inst_def* dico,int nb_inst, int* p_decal_text, int* p_decal_data, int* p_decal_bss)
 {
@@ -347,14 +361,16 @@ L_lexem rec_verif_gram(int n_line, L_lexem L, L_lexem* p_q_etiq, L_lexem* p_l_et
     in_dico(L->val, &regle, dico, nb_inst);
     get_arg(L);
 
+    /* vérification du type d'opérandes */
+    verif_regle(regle, L->arg, L->nb_op, *p_decal_text);
+
     /* affichage */
     printf("\ninstruction :\n");
     afficher_lexem(L->val);
     printf("arguments :\n");
     afficher_arg_lex(L->arg);
 
-    /* vérification du type d'opérandes */
-    verif_regle(regle, L->arg, L->nb_op);
+
     *p_decal_text = *p_decal_text + 4;
 
     free(regle);
@@ -382,8 +398,8 @@ L_lexem rec_verif_gram(int n_line, L_lexem L, L_lexem* p_q_etiq, L_lexem* p_l_et
     afficher_lexem(L->val);
     printf("arguments :\n");
     afficher_arg_lex(L->arg);
-    /*
-    verif_data(L, liste_op, p_decal_data);*/
+
+    verif_data(L, p_decal_data);
 
     L_lexem end_line = L;
     while ( (end_line != NULL) && ((end_line->val).n_ligne == n_line) )

@@ -107,6 +107,7 @@ void afficher_arg_lex(L_lexem L)
   if(L!=NULL)
   {
     afficher_lexem(L->val);
+    printf("decalage : %d\n",L->decalage);
     afficher_arg_lex(L->arg);
   }
 }
