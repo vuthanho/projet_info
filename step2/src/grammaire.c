@@ -222,12 +222,13 @@ void in_dico(T_lexem lex, char** p_regle,inst_def* dico,int nb_inst)
   ERROR_MSG("Instruction inconnue : %s",lex.nom);
 }
 
-void get_arg(L_lexem lex, L_lexem* p_liste_op)
+void get_arg(L_lexem lex)
 {
   int n_line = (lex -> val).n_ligne;
   int nb_parenthese = 0;
   int nb_virg = 0;
   L_lexem op = lex->suiv;
+  L_lexem pre_op = lex;
   int nb_op = 0;
   while( (op != NULL) && ((op->val).n_ligne == n_line) && ((op->val).type != 7))
   {
@@ -252,7 +253,8 @@ void get_arg(L_lexem lex, L_lexem* p_liste_op)
       default:
         nb_virg = 0;
         nb_op++;
-        *p_liste_op = ajoute_lex(op->val,*p_liste_op);
+        pre_op->arg = op;
+        pre_op = op;
         break;
     }
     op = op->suiv;
@@ -265,16 +267,10 @@ void get_arg(L_lexem lex, L_lexem* p_liste_op)
     ERROR_MSG("Error : missing argument after ',' line %d",n_line);
   }
   lex->nb_op = nb_op;
-  if (nb_op != 0)
-  {
-    L_lexem temp = *p_liste_op;
-    *p_liste_op = reverse_list_lex(temp); /* on remet les opérandes dans le bonne ordre */
-    free_liste(temp,1);
-    temp = NULL;
-  }
+
 }
 
-void verif_regle(char* regle, L_lexem op, int nb_op)
+void verif_regle(char* regle,L_lexem first_op, int nb_op)
 {
   if (strlen(regle) > nb_op)
   {
@@ -285,7 +281,7 @@ void verif_regle(char* regle, L_lexem op, int nb_op)
     ERROR_MSG("Error : too many arguments");
   }
   int isok = 1;
-  L_lexem op_lu = op;
+  L_lexem op_lu = first_op;
   char* op_voulu = regle;
   while(isok && (op_lu != NULL) )
   {
@@ -297,10 +293,17 @@ void verif_regle(char* regle, L_lexem op, int nb_op)
     {
       ERROR_MSG("Error : wrong type of argument line %d",(op_lu->val).n_ligne);
     }
-    op_lu = op_lu->suiv;
+    op_lu = op_lu->arg;
     op_voulu = op_voulu+1;
   }
 }
+/*
+void verif_data(L_lexem lex, L_lexem liste_op, int* p_decal_data)
+{
+  L_lexem op = liste_op;
+
+}
+*/
 
 L_lexem rec_verif_gram(int n_line, L_lexem L, L_lexem* p_q_etiq, L_lexem* p_l_etiq, int* p_etat, inst_def* dico,int nb_inst, int* p_decal_text, int* p_decal_data, int* p_decal_bss)
 {
@@ -333,9 +336,8 @@ L_lexem rec_verif_gram(int n_line, L_lexem L, L_lexem* p_q_etiq, L_lexem* p_l_et
 
   /* analyse grammaticale dans le cas d'une section .text */
 
-  if ((*p_etat == 1) )
+  if (*p_etat == 1)
   {
-    L_lexem liste_op = NULL;
 
     /* vidage de la file d'attente des étiquettes */
     vider_Q_etiq(p_q_etiq, p_l_etiq, 1, *p_decal_text);
@@ -343,20 +345,18 @@ L_lexem rec_verif_gram(int n_line, L_lexem L, L_lexem* p_q_etiq, L_lexem* p_l_et
 
     /* recherche dans le dictionnaire des instructions et acquisition des arguments */
     in_dico(L->val, &regle, dico, nb_inst);
-    get_arg(L, &liste_op);
+    get_arg(L);
 
     /* affichage */
     printf("\ninstruction :\n");
     afficher_lexem(L->val);
     printf("arguments :\n");
-    afficher_liste_lex(liste_op);
+    afficher_arg_lex(L->arg);
 
     /* vérification du type d'opérandes */
-    verif_regle(regle, liste_op, L->nb_op);
+    verif_regle(regle, L->arg, L->nb_op);
     *p_decal_text = *p_decal_text + 4;
 
-    free_liste(liste_op,1); /* libération de la mémoire pour la liste des opérandes */
-    liste_op = NULL;
     free(regle);
     regle = NULL;
     L_lexem end_line = L;
@@ -372,20 +372,19 @@ L_lexem rec_verif_gram(int n_line, L_lexem L, L_lexem* p_q_etiq, L_lexem* p_l_et
 
   if (*p_etat == 2)
   {
-    L_lexem liste_op = NULL;
+
     /* vidage de la file d'attente des étiquettes */
     vider_Q_etiq(p_q_etiq, p_l_etiq, 1, *p_decal_text);
     /* acquisition des arguments */
-    get_arg(L, &liste_op);
+    get_arg(L);
     /* affichage */
-    printf("\ninstruction :\n");
+    printf("\ndirective :\n");
     afficher_lexem(L->val);
     printf("arguments :\n");
-    afficher_liste_lex(liste_op);
-    /* ajouter calcul du nouveau décalage ici */
+    afficher_arg_lex(L->arg);
+    /*
+    verif_data(L, liste_op, p_decal_data);*/
 
-    free_liste(liste_op,1); /* libération de la mémoire pour la liste des opérandes */
-    liste_op = NULL;
     L_lexem end_line = L;
     while ( (end_line != NULL) && ((end_line->val).n_ligne == n_line) )
     {
@@ -398,24 +397,21 @@ L_lexem rec_verif_gram(int n_line, L_lexem L, L_lexem* p_q_etiq, L_lexem* p_l_et
 
   if (*p_etat == 3)
   {
-    L_lexem liste_op = NULL;
 
     /* vidage de la file d'attente des étiquettes */
     vider_Q_etiq(p_q_etiq, p_l_etiq, 1, *p_decal_text);
 
     /* acquisition des arguments */
-    get_arg(L, &liste_op);
+    get_arg(L);
 
     /* affichage */
-    printf("\ninstruction :\n");
+    printf("\ndirective :\n");
     afficher_lexem(L->val);
     printf("arguments :\n");
-    afficher_liste_lex(liste_op);
+    afficher_arg_lex(L->arg);
 
     /* ajouter calcul du nouveau décalage ici */
 
-    free_liste(liste_op,1); /* libération de la mémoire pour la liste des opérandes */
-    liste_op = NULL;
     L_lexem end_line = L;
     while ( (end_line != NULL) && ((end_line->val).n_ligne == n_line) )
     {

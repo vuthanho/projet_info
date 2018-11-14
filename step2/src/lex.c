@@ -32,6 +32,7 @@ L_lexem ajoute_lex(T_lexem lex, L_lexem L)
   L_lexem nListe = calloc(1,sizeof(*nListe));
   nListe -> val = lex;
   nListe -> suiv = L;
+  nListe -> arg = NULL;
   return nListe;
 }
 
@@ -98,6 +99,15 @@ void afficher_liste_lex(L_lexem L)
   {
     afficher_lexem(L->val);
     afficher_liste_lex(L->suiv);
+  }
+}
+
+void afficher_arg_lex(L_lexem L)
+{
+  if(L!=NULL)
+  {
+    afficher_lexem(L->val);
+    afficher_arg_lex(L->arg);
   }
 }
 
