@@ -219,7 +219,7 @@ void in_dico(T_lexem lex, char** p_regle,inst_def* dico,int nb_inst)
     }
     i++;
   }
-  ERROR_MSG("Instruction inconnu : %s",lex.nom);
+  ERROR_MSG("Instruction inconnue : %s",lex.nom);
 }
 
 void get_arg(L_lexem lex, L_lexem* p_liste_op)
@@ -248,8 +248,6 @@ void get_arg(L_lexem lex, L_lexem* p_liste_op)
         else {
           nb_parenthese--;
         }
-        nb_op++;
-        *p_liste_op = ajoute_lex(op->val,*p_liste_op);
         break;
       default:
         nb_virg = 0;
@@ -306,43 +304,128 @@ void verif_regle(char* regle, L_lexem op, int nb_op)
 
 L_lexem rec_verif_gram(int n_line, L_lexem L, L_lexem* p_q_etiq, L_lexem* p_l_etiq, int* p_etat, inst_def* dico,int nb_inst, int* p_decal_text, int* p_decal_data, int* p_decal_bss)
 {
-  if ( (L == NULL) || (n_line != (L->val).n_ligne) ) {
+  if ( (L == NULL) || (n_line != (L->val).n_ligne) ) { /* détection d'une fin de ligne */
     return L;
   }
-  if ((L->val).type == 5)
+  if ((L->val).type == 5) /* ajout d'une étiquette à la file d'attente */
   {
     *p_q_etiq = ajoute_lex(L->val,*p_q_etiq);
     return rec_verif_gram(n_line, L->suiv, p_q_etiq, p_l_etiq, p_etat, dico, nb_inst, p_decal_text, p_decal_data, p_decal_bss);
   }
-  if (((L->val).type == 10)||((L->val).type == 7))
+
+  if (((L->val).type == 10)||((L->val).type == 7)) /* passage à la prochaine ligne dans le cas où on lit un commentaire un un \n */
   {
     return rec_verif_gram(n_line, L->suiv, p_q_etiq, p_l_etiq, p_etat, dico, nb_inst, p_decal_text, p_decal_data, p_decal_bss);
   }
-  update_etat(p_etat,L->val);
-  if ((*p_etat == 1) && ((L->val).type == 1))
+
+  int old_etat = *p_etat;
+  update_etat(p_etat,L->val); /* mise à jour de l'état de section */
+  if(old_etat != *p_etat)
+  {
+    L_lexem end_line = L;
+    while ( (end_line != NULL) && ((end_line->val).n_ligne == n_line) )
+    {
+      /* recherche de la prochaine ligne à analyser */
+      end_line = end_line->suiv;
+    }
+    return rec_verif_gram(n_line, end_line, p_q_etiq, p_l_etiq, p_etat, dico, nb_inst, p_decal_text, p_decal_data, p_decal_bss);
+  }
+
+  /* analyse grammaticale dans le cas d'une section .text */
+
+  if ((*p_etat == 1) )
   {
     L_lexem liste_op = NULL;
+
+    /* vidage de la file d'attente des étiquettes */
     vider_Q_etiq(p_q_etiq, p_l_etiq, 1, *p_decal_text);
     char* regle = NULL;
+
+    /* recherche dans le dictionnaire des instructions et acquisition des arguments */
     in_dico(L->val, &regle, dico, nb_inst);
     get_arg(L, &liste_op);
+
+    /* affichage */
     printf("\ninstruction :\n");
     afficher_lexem(L->val);
     printf("arguments :\n");
     afficher_liste_lex(liste_op);
+
+    /* vérification du type d'opérandes */
     verif_regle(regle, liste_op, L->nb_op);
     *p_decal_text = *p_decal_text + 4;
-    free_liste(liste_op,1);
+
+    free_liste(liste_op,1); /* libération de la mémoire pour la liste des opérandes */
     liste_op = NULL;
     free(regle);
     regle = NULL;
     L_lexem end_line = L;
     while ( (end_line != NULL) && ((end_line->val).n_ligne == n_line) )
     {
+      /* recherche de la prochaine ligne à analyser */
       end_line = end_line->suiv;
     }
     return rec_verif_gram(n_line, end_line, p_q_etiq, p_l_etiq, p_etat, dico, nb_inst, p_decal_text, p_decal_data, p_decal_bss);
   }
+
+  /* analyse grammaticale dans le cas d'une section .data */
+
+  if (*p_etat == 2)
+  {
+    L_lexem liste_op = NULL;
+    /* vidage de la file d'attente des étiquettes */
+    vider_Q_etiq(p_q_etiq, p_l_etiq, 1, *p_decal_text);
+    /* acquisition des arguments */
+    get_arg(L, &liste_op);
+    /* affichage */
+    printf("\ninstruction :\n");
+    afficher_lexem(L->val);
+    printf("arguments :\n");
+    afficher_liste_lex(liste_op);
+    /* ajouter calcul du nouveau décalage ici */
+
+    free_liste(liste_op,1); /* libération de la mémoire pour la liste des opérandes */
+    liste_op = NULL;
+    L_lexem end_line = L;
+    while ( (end_line != NULL) && ((end_line->val).n_ligne == n_line) )
+    {
+      /* recherche de la prochaine ligne à analyser */
+      end_line = end_line->suiv;
+    }
+  }
+
+  /* analyse grammaticale dans le cas d'une section .bss */
+
+  if (*p_etat == 3)
+  {
+    L_lexem liste_op = NULL;
+
+    /* vidage de la file d'attente des étiquettes */
+    vider_Q_etiq(p_q_etiq, p_l_etiq, 1, *p_decal_text);
+
+    /* acquisition des arguments */
+    get_arg(L, &liste_op);
+
+    /* affichage */
+    printf("\ninstruction :\n");
+    afficher_lexem(L->val);
+    printf("arguments :\n");
+    afficher_liste_lex(liste_op);
+
+    /* ajouter calcul du nouveau décalage ici */
+
+    free_liste(liste_op,1); /* libération de la mémoire pour la liste des opérandes */
+    liste_op = NULL;
+    L_lexem end_line = L;
+    while ( (end_line != NULL) && ((end_line->val).n_ligne == n_line) )
+    {
+      /* recherche de la prochaine ligne à analyser */
+      end_line = end_line->suiv;
+    }
+  }
+
+  /* détection de l'absence de déclaration d'une section en début de fichier */
+
   if (*p_etat == -1)
   {
     ERROR_MSG("Il n'y a pas de fumée sans feu. Le feu ici étant la déclaration d'une section.");
