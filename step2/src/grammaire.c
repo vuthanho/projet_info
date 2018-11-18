@@ -311,8 +311,8 @@ void verif_data(L_lexem lex, int* p_decal_data)
       {
         ERROR_MSG("Error : wrong type of argument line %d",(op->val).n_ligne);
       }
-
-
+      op->decalage = *p_decal_data;
+      *p_decal_data = *p_decal_data + 4;
       op = op->arg;
     }
   }
