@@ -393,13 +393,14 @@ L_lexem rec_verif_gram(int n_line, L_lexem L, L_lexem* p_q_etiq, L_lexem* p_l_et
     vider_Q_etiq(p_q_etiq, p_l_etiq, 1, *p_decal_text);
     /* acquisition des arguments */
     get_arg(L);
+
+    verif_data(L, p_decal_data);
+
     /* affichage */
     printf("\ndirective :\n");
     afficher_lexem(L->val);
     printf("arguments :\n");
     afficher_arg_lex(L->arg);
-
-    verif_data(L, p_decal_data);
 
     L_lexem end_line = L;
     while ( (end_line != NULL) && ((end_line->val).n_ligne == n_line) )
@@ -407,6 +408,7 @@ L_lexem rec_verif_gram(int n_line, L_lexem L, L_lexem* p_q_etiq, L_lexem* p_l_et
       /* recherche de la prochaine ligne à analyser */
       end_line = end_line->suiv;
     }
+    return rec_verif_gram(n_line, end_line, p_q_etiq, p_l_etiq, p_etat, dico, nb_inst, p_decal_text, p_decal_data, p_decal_bss);
   }
 
   /* analyse grammaticale dans le cas d'une section .bss */
