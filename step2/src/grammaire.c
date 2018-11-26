@@ -331,6 +331,41 @@ void verif_data(L_lexem lex, int* p_decal_data)
   }
 }
 
+void verif_bss(L_lexem lex, int* p_decal_bss)
+{
+  L_lexem op = lex->arg;
+
+  if(!strcmp(".space",(lex->val).nom))
+  {
+    if(op==NULL)
+    {
+      ERROR_MSG("Error : missing argument line %d",(lex->val).n_ligne);
+    }
+
+    if(lex->nb_op==1)
+    {
+      if(atoi((op->val).nom)>=0)
+      {
+        op->decalage = *p_decal_bss;
+        *p_decal_bss = *p_decal_bss + atoi((op->val).nom);
+        op = op->arg;
+      }
+      else
+      {
+        ERROR_MSG("Error : wrong type of argument line %d",(op->val).n_ligne);
+      }
+    }
+    else
+    {
+      ERROR_MSG("Error : check arguments after '.space' line %d",(op->val).n_ligne);
+    }
+  }
+  else
+  {
+    ERROR_MSG("Error : only '.space' expected in bss section");
+  }
+}
+
 
 L_lexem rec_verif_gram(int n_line, L_lexem L, L_lexem* p_q_etiq, L_lexem* p_l_etiq, int* p_etat, inst_def* dico,int nb_inst, int* p_decal_text, int* p_decal_data, int* p_decal_bss)
 {
@@ -430,10 +465,13 @@ L_lexem rec_verif_gram(int n_line, L_lexem L, L_lexem* p_q_etiq, L_lexem* p_l_et
   {
 
     /* vidage de la file d'attente des étiquettes */
-    vider_Q_etiq(p_q_etiq, p_l_etiq, 1, *p_decal_text);
+    vider_Q_etiq(p_q_etiq, p_l_etiq, 3, *p_decal_text);
 
     /* acquisition des arguments */
     get_arg(L);
+
+
+    verif_bss(L, p_decal_bss);
 
     /* affichage */
     printf("\ndirective :\n");
@@ -449,6 +487,7 @@ L_lexem rec_verif_gram(int n_line, L_lexem L, L_lexem* p_q_etiq, L_lexem* p_l_et
       /* recherche de la prochaine ligne à analyser */
       end_line = end_line->suiv;
     }
+    return rec_verif_gram(n_line, end_line, p_q_etiq, p_l_etiq, p_etat, dico, nb_inst, p_decal_text, p_decal_data, p_decal_bss);
   }
 
   /* détection de l'absence de déclaration d'une section en début de fichier */
