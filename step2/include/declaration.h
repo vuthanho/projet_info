@@ -33,5 +33,6 @@ void verif_regle(char* regle,L_lexem first_op, int nb_op, int decal_text);
 void verif_data(L_lexem lex, int* p_decal_data);
 L_lexem rec_verif_gram(int n_line, L_lexem L, L_lexem* p_q_etiq, L_lexem* p_l_etiq, int* p_etat, inst_def* dico,int nb_inst, int* p_decal_text, int* p_decal_data, int* p_decal_bss);
 void verif_gram(int nb_line, L_lexem L, L_lexem* p_l_etiq, inst_def* dico,int nb_inst);
+void verif_bss(L_lexem lex, int* p_decal_bss);
 
 #endif
