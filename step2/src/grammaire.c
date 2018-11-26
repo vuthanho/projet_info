@@ -334,7 +334,7 @@ void verif_bss(L_lexem lex, int* p_decal_bss)
       if(atoi((op->val).nom)>=0)
       {
         op->decalage = *p_decal_bss;
-        *p_decal_bss = *p_decal_bss + 4;
+        *p_decal_bss = *p_decal_bss + atoi((op->val).nom);
         op = op->arg;
       }
       else
@@ -347,10 +347,10 @@ void verif_bss(L_lexem lex, int* p_decal_bss)
       ERROR_MSG("Error : check arguments after '.space' line %d",(op->val).n_ligne);
     }
   }
-  /*else
+  else
   {
     ERROR_MSG("Error : only '.space' expected in bss section");
-  }*/
+  }
 }
 
 
