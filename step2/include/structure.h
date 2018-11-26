@@ -19,6 +19,19 @@ typedef struct lsuiv{
 
 
 typedef struct { char instruction[10]; char regle[10];} inst_def;
+
+typedef struct l_op{
+  char* operande;
+  struct l_op* suiv;
+}* L_op;
+
+typedef struct {
+  char instruction[10];
+  char type;
+  int nb_op;
+  char* arguments[3];
+} instru_def;
+
 enum type_lex{symbole, val_dec, val_hex, registre, etiquette, parenthese, new_line, deux_points, virgule, comment, directive, chaine_car};
 
 

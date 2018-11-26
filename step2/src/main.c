@@ -59,7 +59,7 @@ int main ( int argc, char *argv[] ) {
     L_lexem  l_etiq = NULL;
 
     int nb_inst;
-    inst_def* dico = load_dico("dico/dico_instr",&nb_inst);
+    instru_def* dico = load_dico("dico/dico_instr",&nb_inst);
 
     /* ---------------- do the lexical analysis -------------------*/
     lex_load_file( file, &nlines, &L, &L_symb);
@@ -67,9 +67,9 @@ int main ( int argc, char *argv[] ) {
     L_lexem nL = reverse_list_lex(L);
     free_liste(L,1);
     afficher_liste_lex(nL);
-
+/*
     verif_gram(nlines, nL, &l_etiq, dico, nb_inst);
-
+*/
     /* ---------------- Free memory and terminate -------------------*/
 
     /* TODO free everything properly*/

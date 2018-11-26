@@ -1,32 +1,32 @@
 31
-ADD 444
-ADDI 442
-SUB 444
-MULT 44
-DIV 44
-AND 444
-OR 444
-XOR 444
-ROTR 442
-SLL 442
-SRL 442
-SLT 444
-LW 42646
-SW 42646
-LUI 42
-MFHI 4
-MFLO 4
-BEQ 441
-BNE 442
-BGTZ 42
-BLEZ 42
-J 1
-JAL 1
-JR 1
-NOP \0
-LW 41
-SW 41
-MOVE 44
-NEG 44
-LI 42
-BLT 441
+ADDI I 3 Reg Reg Imm
+ADD R 3 Reg Reg Reg
+BEQ I 3 Reg Reg Rel
+AND R 3 Reg Reg Reg
+BLEZ I 2 Reg Rel
+BGTZ I 2 Reg Rel
+DIV R 2 Reg Reg
+BNE I 3 Reg Reg Rel
+J J 1 Abs
+JR R 1 Reg
+JAL J 1 Abs
+LUI I 2 Reg Imm
+MFHI R 1 Reg
+LW I 2 Reg Bas
+MULT R 2 Reg Reg
+MFLO R 1 Reg
+OR R 3 Reg Reg Reg
+NOP P 0
+SLL R 3 Reg Reg sa
+ROTR R 3 Reg Reg sa
+SRL R 3 Reg Reg sa
+SLT R 3 Reg Reg Reg
+SW I 2 Reg Bas
+SUB R 3 Reg Reg Reg
+XOR R 3 Reg Reg Reg
+MOVE P 2 Reg Reg
+NEG P 2 Reg Reg
+LI P 2 Reg Imm
+BLT P 3 Reg Reg Abs
+LW P 2 Reg Abs
+SW P 2 Reg Abs

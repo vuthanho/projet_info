@@ -21,7 +21,7 @@ int automate(char** p_end, char* endline );
 int is_new_section( T_lexem lex, int etat );
 void first_check( char** token, char** p_current_adress, int n_ligne, L_lexem* p_L, char* endline, L_lexem* p_Ls, int etat);
 void print_section(int etat);
-inst_def* load_dico(char* chemin_dico, int* p_nb_inst);
+instru_def* load_dico(char* chemin_dico, int* p_nb_inst);
 void free_dico(inst_def* dico, int nb_inst);
 int check_reg(T_lexem reg);
 int rec_check_reg(T_lexem reg,int i);
