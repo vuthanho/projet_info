@@ -218,17 +218,14 @@ void vider_Q_etiq(L_lexem* p_q_etiq, L_lexem* p_l_etiq, int section, int decalag
   *p_q_etiq = NULL;
 }
 
-void in_dico(T_lexem lex, char** p_regle,inst_def* dico,int nb_inst)
+int in_dico(T_lexem lex,instru_def* dico,int nb_inst)
 {
   int i=0;
-  while( (*p_regle == NULL) && (i<nb_inst) )
+  while(i<nb_inst)
   {
-    if(!strcasecmp( (dico+i)->instruction, lex.nom ))
+    if (!strcasecmp((dico[i]).instruction,lex.nom))
     {
-      *p_regle = malloc( strlen((dico+i)->regle)+1);
-      strcpy(*p_regle,(dico+i)->regle);
-      (*p_regle)[strlen((dico+i)->regle)] = '\0';
-      return;
+      return i;
     }
     i++;
   }
@@ -283,23 +280,27 @@ void get_arg(L_lexem lex)
 
 }
 
-void verif_regle(char* regle,L_lexem first_op, int nb_op, int decal_text)
+
+
+void verif_regle(instru_def* dico,int pos, L_lexem L, int decal_text)
 {
-  if (strlen(regle) > nb_op)
+  if ((dico[pos]).nb_op > L->nb_op)
   {
-    ERROR_MSG("Error : not enough arguments");
+    ERROR_MSG("Error : not enough arguments line %d",(L->val).n_ligne);
   }
-  if (strlen(regle) < nb_op)
+  if ((dico[pos]).nb_op < L->nb_op)
   {
-    ERROR_MSG("Error : too many arguments");
+    ERROR_MSG("Error : too many arguments line %d",(L->val).n_ligne);
   }
+  L->decalage = decal_text;
   int isok = 1;
-  L_lexem op_lu = first_op;
-  char* op_voulu = regle;
-  while(isok && (op_lu != NULL) )
+  L_lexem op_lu = L->arg;
+  char** op_voulu = (dico[pos]).arguments;
+  int i;
+  for(i=0; i < (L->nb_op); i++)
   {
     op_lu->decalage = decal_text;
-    if( *op_voulu-'0' != (op_lu->val).type)
+    if( )
     {
       isok = 0;
     }
@@ -308,7 +309,7 @@ void verif_regle(char* regle,L_lexem first_op, int nb_op, int decal_text)
       ERROR_MSG("Error : wrong type of argument line %d",(op_lu->val).n_ligne);
     }
     op_lu = op_lu->arg;
-    op_voulu = op_voulu+1;
+
   }
 }
 
@@ -367,7 +368,7 @@ void verif_bss(L_lexem lex, int* p_decal_bss)
 }
 
 
-L_lexem rec_verif_gram(int n_line, L_lexem L, L_lexem* p_q_etiq, L_lexem* p_l_etiq, int* p_etat, inst_def* dico,int nb_inst, int* p_decal_text, int* p_decal_data, int* p_decal_bss)
+L_lexem rec_verif_gram(int n_line, L_lexem L, L_lexem* p_q_etiq, L_lexem* p_l_etiq, int* p_etat, instru_def* dico,int nb_inst, int* p_decal_text, int* p_decal_data, int* p_decal_bss)
 {
   if ( (L == NULL) || (n_line != (L->val).n_ligne) ) { /* détection d'une fin de ligne */
     return L;
@@ -403,14 +404,13 @@ L_lexem rec_verif_gram(int n_line, L_lexem L, L_lexem* p_q_etiq, L_lexem* p_l_et
 
     /* vidage de la file d'attente des étiquettes */
     vider_Q_etiq(p_q_etiq, p_l_etiq, 1, *p_decal_text);
-    char* regle = NULL;
 
     /* recherche dans le dictionnaire des instructions et acquisition des arguments */
-    in_dico(L->val, &regle, dico, nb_inst);
+    int indice_instru = in_dico(L->val, dico, nb_inst);
     get_arg(L);
 
     /* vérification du type d'opérandes */
-    verif_regle(regle, L->arg, L->nb_op, *p_decal_text);
+    /*verif_regle(dico, indice_instru, L, *p_decal_text);
 
     /* affichage */
     printf("\ninstruction :\n");
@@ -418,11 +418,8 @@ L_lexem rec_verif_gram(int n_line, L_lexem L, L_lexem* p_q_etiq, L_lexem* p_l_et
     printf("arguments :\n");
     afficher_arg_lex(L->arg);
 
-
     *p_decal_text = *p_decal_text + 4;
 
-    free(regle);
-    regle = NULL;
     L_lexem end_line = L;
     while ( (end_line != NULL) && ((end_line->val).n_ligne == n_line) )
     {
@@ -499,7 +496,7 @@ L_lexem rec_verif_gram(int n_line, L_lexem L, L_lexem* p_q_etiq, L_lexem* p_l_et
   return rec_verif_gram(n_line, L->suiv, p_q_etiq, p_l_etiq, p_etat, dico, nb_inst, p_decal_text, p_decal_data, p_decal_bss);
 }
 
-void verif_gram(int nb_line, L_lexem L, L_lexem* p_l_etiq, inst_def* dico,int nb_inst)
+void verif_gram(int nb_line, L_lexem L, L_lexem* p_l_etiq, instru_def* dico,int nb_inst)
 {
   L_lexem debut_ligne = L;
   int i;

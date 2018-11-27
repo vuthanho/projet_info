@@ -18,13 +18,6 @@ typedef struct lsuiv{
 }* L_lexem;
 
 
-typedef struct { char instruction[10]; char regle[10];} inst_def;
-
-typedef struct l_op{
-  char* operande;
-  struct l_op* suiv;
-}* L_op;
-
 typedef struct {
   char instruction[10];
   char type;

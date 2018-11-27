@@ -22,17 +22,17 @@ int is_new_section( T_lexem lex, int etat );
 void first_check( char** token, char** p_current_adress, int n_ligne, L_lexem* p_L, char* endline, L_lexem* p_Ls, int etat);
 void print_section(int etat);
 instru_def* load_dico(char* chemin_dico, int* p_nb_inst);
-void free_dico(inst_def* dico, int nb_inst);
+void free_dico(instru_def* dico, int nb_inst);
 int check_reg(T_lexem reg);
 int rec_check_reg(T_lexem reg,int i);
 void update_etat(int* p_etat, T_lexem lex);
 void vider_Q_etiq(L_lexem* p_q_etiq, L_lexem* p_l_etiq, int section, int decalage);
-void in_dico(T_lexem lex, char** p_regle,inst_def* dico,int nb_inst);
+int in_dico(T_lexem lex,instru_def* dico,int nb_inst);
 void get_arg(L_lexem lex);
 void verif_regle(char* regle,L_lexem first_op, int nb_op, int decal_text);
 void verif_data(L_lexem lex, int* p_decal_data);
-L_lexem rec_verif_gram(int n_line, L_lexem L, L_lexem* p_q_etiq, L_lexem* p_l_etiq, int* p_etat, inst_def* dico,int nb_inst, int* p_decal_text, int* p_decal_data, int* p_decal_bss);
-void verif_gram(int nb_line, L_lexem L, L_lexem* p_l_etiq, inst_def* dico,int nb_inst);
+L_lexem rec_verif_gram(int n_line, L_lexem L, L_lexem* p_q_etiq, L_lexem* p_l_etiq, int* p_etat, instru_def* dico,int nb_inst, int* p_decal_text, int* p_decal_data, int* p_decal_bss);
+void verif_gram(int nb_line, L_lexem L, L_lexem* p_l_etiq, instru_def* dico,int nb_inst);
 void verif_bss(L_lexem lex, int* p_decal_bss);
 
 #endif

@@ -67,9 +67,9 @@ int main ( int argc, char *argv[] ) {
     L_lexem nL = reverse_list_lex(L);
     free_liste(L,1);
     afficher_liste_lex(nL);
-/*
+
     verif_gram(nlines, nL, &l_etiq, dico, nb_inst);
-*/
+
     /* ---------------- Free memory and terminate -------------------*/
 
     /* TODO free everything properly*/
