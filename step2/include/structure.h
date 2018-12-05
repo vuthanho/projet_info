@@ -6,12 +6,12 @@ typedef struct {
   int type;
   int n_ligne;
   char* nom;
+  int decalage;
 } T_lexem;
 
 typedef struct lsuiv{
   T_lexem val;
   int section;
-  int decalage;
   int nb_op;
   struct lsuiv* suiv;
   struct lsuiv* arg;
@@ -25,7 +25,7 @@ typedef struct {
   char* arguments[3];
 } instru_def;
 
-enum type_lex{symbole, val_dec, val_hex, registre, etiquette, parenthese, new_line, deux_points, virgule, comment, directive, chaine_car};
+enum type_lex{unknown, symbole, val_dec, val_hex, registre, etiquette, parenthese, new_line, deux_points, virgule, comment, directive, chaine_car};
 
 
 /*

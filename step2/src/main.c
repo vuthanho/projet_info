@@ -9,6 +9,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <strings.h>
+#include <limits.h>
 
 #include "global.h"
 #include "notify.h"
@@ -67,7 +68,10 @@ int main ( int argc, char *argv[] ) {
     L_lexem nL = reverse_list_lex(L);
     free_liste(L,1);
     afficher_liste_lex(nL);
-
+    char test[20];
+    sprintf(test,"%ld",int_to_int(4096));
+    printf("\n%ld %s\n",strlen(test),test);
+    printf("\n%ld \n",sizeof(unsigned long));
     verif_gram(nlines, nL, &l_etiq, dico, nb_inst);
 
     /* ---------------- Free memory and terminate -------------------*/

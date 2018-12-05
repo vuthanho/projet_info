@@ -4,6 +4,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <strings.h>
+#include <limits.h>
 
 #include "global.h"
 #include "notify.h"
@@ -107,7 +108,7 @@ void afficher_arg_lex(L_lexem L)
   if(L!=NULL)
   {
     afficher_lexem(L->val);
-    printf("decalage : %d\n",L->decalage);
+    printf("decalage : %d\n",(L->val).decalage);
     afficher_arg_lex(L->arg);
   }
 }
@@ -134,7 +135,7 @@ char* getNextToken(char** token, char* current_line, int n_ligne, L_lexem* p_L, 
 
     /*compute size : if zero there is no more token to extract*/
     token_size=end-start;
-    if ( (token_size>0) && (type != 8) )
+    if ( (token_size>0) && (type != deux_points) )
     {
       free(*token);
       *token = NULL;
@@ -145,26 +146,31 @@ char* getNextToken(char** token, char* current_line, int n_ligne, L_lexem* p_L, 
       n_lex.type = type;
       n_lex.n_ligne = n_ligne;
       n_lex.nom = calloc(token_size+1,sizeof(*start));
+      n_lex.decalage = 0;
 /*      n_lex.nom = strdup(*token);  /!\ segfault POURQUOI? */
-      strcpy(n_lex.nom,*token);
+      if(type==registre)
+      {
+        sprintf(n_lex.nom,"%d",check_reg(*token));
+      }
+      else
+      {
+        strcpy(n_lex.nom,*token);
+      }
 
       *p_L = ajoute_lex(n_lex, *p_L);
 
 
-      if(type == 1)
+      if(type == symbole)
       {
         *p_Ls = ajoute_lex(n_lex, *p_Ls);
       }
 
-      if(type==4){
-        check_reg(n_lex);
-      }
       return end;
     }
-    if (type == 8){
+    if (type == deux_points){
       /* détection d'une étiquette */
-      if ( (((*p_L)->val).type == 1) && (((*p_L)->val).n_ligne == n_ligne) ){
-        ((*p_L)->val).type = 5;
+      if ( (((*p_L)->val).type == symbole) && (((*p_L)->val).n_ligne == n_ligne) ){
+        ((*p_L)->val).type = etiquette;
         /* ajouter une instruction permettant de compléter le dico des étiquettes */
         return end;
       }
@@ -246,7 +252,7 @@ void lex_load_file( char *file, unsigned int *nlines, L_lexem* p_L, L_lexem* p_L
             if ( *nlines )
             {
               T_lexem n_lex;
-              n_lex.type = 7;
+              n_lex.type = new_line;
               n_lex.n_ligne = *nlines;
               n_lex.nom = calloc(1,2);
               char* saut = "\n";

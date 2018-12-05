@@ -4,6 +4,8 @@
 #include <string.h>
 #include <ctype.h>
 #include <strings.h>
+#include <limits.h>
+#include <errno.h>
 
 #include "global.h"
 #include "notify.h"
@@ -186,18 +188,18 @@ instru_def* load_dico(char* chemin_dico, int* p_nb_inst){
 }
 
 
-int check_reg(T_lexem reg){
+int check_reg(char* reg){
   int i = 0;
   return rec_check_reg(reg,i);
 }
 
-int rec_check_reg(T_lexem reg,int i){
+int rec_check_reg(char* reg,int i){
   char reg_test[3];
   sprintf (reg_test,"%d",i);
   if (i==32){
-    ERROR_MSG("Unknown register : '%s'",reg.nom);
+    ERROR_MSG("Unknown register : '%s'",reg);
   }
-  if (strcmp(reg.nom+1,reg_mnem_list[i]) && strcmp(reg.nom+1,reg_test) ){
+  if (strcmp(reg+1,reg_mnem_list[i]) && strcmp(reg+1,reg_test) ){
     return rec_check_reg(reg,i+1);
   }
   return i;
@@ -211,7 +213,7 @@ void vider_Q_etiq(L_lexem* p_q_etiq, L_lexem* p_l_etiq, int section, int decalag
   {
     *p_l_etiq = ajoute_lex(a_vider->val,*p_l_etiq);
     (*p_l_etiq)->section = section;
-    (*p_l_etiq)->decalage = decalage;
+    ((*p_l_etiq)->val).decalage = decalage;
     a_vider = a_vider->suiv;
   }
   free_liste(*p_q_etiq,1);
@@ -280,7 +282,167 @@ void get_arg(L_lexem lex)
 
 }
 
+unsigned long int_to_int(unsigned long k) {
+    return (k == 0 || k == 1 ? k : ((k % 2) + 10 * int_to_int(k / 2)));
+}
 
+int verif_arg(char* op_voulu, L_lexem op_lu)
+{
+  /* ATTENTION les tests sur les hexa ne sont pas encore faits */
+
+  /* test si l'argument attendu est un registre */
+
+  if(!strcmp("Reg",op_voulu))
+  {
+    if((op_lu->val).type != registre)
+    {
+      ERROR_MSG("Invalid argument, Reg expected line %d",(op_lu->val).n_ligne);
+    }
+  }
+
+  /* test si l'argument attendu est un relatif */
+
+  if(!strcmp("Rel",op_voulu))
+  {
+    if (((op_lu->val).type != val_hex) && ((op_lu->val).type != val_dec) && ((op_lu->val).type != symbole))
+    {
+      ERROR_MSG("Invalid argument, Rel expected line %d",(op_lu->val).n_ligne);
+    }
+    if ((op_lu -> val).type == symbole) /* si Rel fait référence à une étiquette */
+    {
+      if ((op_lu->val).decalage % 4 != 0)
+      {
+        ERROR_MSG("Invalid jump line %d",(op_lu->val).n_ligne);
+      }
+    }
+    else /* si la valeur de Rel est directement exprimée */
+    {
+      errno = 0;
+      long int op_long = strtol((op_lu->val).nom,NULL,10);
+      if ((errno == ERANGE && (op_long == LONG_MAX || op_long == LONG_MIN)) || (errno != 0 && op_long == 0))
+      {
+        ERROR_MSG("Rel argument longer that 18 bits line %d",(op_lu->val).n_ligne);
+      }
+      if(op_long % 4 != 0)
+      {
+        ERROR_MSG("Invalid jump line %d",(op_lu->val).n_ligne);
+      }
+      char* temp;
+      temp = malloc(64*sizeof(int));
+      sprintf(temp,"%ld",int_to_int(op_long));
+      if(strlen(temp)>18)
+      {
+        ERROR_MSG("Rel argument longer that 18 bits line %d",(op_lu->val).n_ligne);
+      }
+    }
+  }
+
+  /* test si l'argument attendu est un immediat */
+
+  if(!strcmp("Imm",op_voulu))
+  {
+    if (((op_lu->val).type != val_hex) && ((op_lu->val).type != val_dec) && ((op_lu->val).type != symbole))
+    {
+      ERROR_MSG("Invalid argument, Imm expected line %d",(op_lu->val).n_ligne);
+    }
+    if ((op_lu -> val).type == symbole) /* si Imm fait référence à une étiquette */
+    {
+      if ( ((op_lu->val).decalage > SHRT_MAX) || ((op_lu->val).decalage < SHRT_MIN) )
+      {
+        ERROR_MSG("Imm argument longer that 16 bits line %d",(op_lu->val).n_ligne);
+      }
+    }
+    else /* si la valeur de Imm est directement exprimée */
+    {
+      errno = 0;
+      long int op_long = strtol((op_lu->val).nom,NULL,10);
+      if ((errno == ERANGE && (op_long == LONG_MAX || op_long == LONG_MIN)) || (errno != 0 && op_long == 0))
+      {
+        ERROR_MSG("Imm argument longer that 16 bits line %d",(op_lu->val).n_ligne);
+      }
+      if ( (op_long >= SHRT_MAX) || (op_long <= SHRT_MIN) )
+      {
+        ERROR_MSG("Imm argument longer that 16 bits line %d",(op_lu->val).n_ligne);
+      }
+    }
+  }
+
+  /* test si l'argument attendu est un shift amount */
+
+  if(!strcmp("sa",op_voulu))
+  {
+    if (((op_lu->val).type != val_hex) && ((op_lu->val).type != val_dec) && ((op_lu->val).type != symbole))
+    {
+      ERROR_MSG("Invalid argument, sa expected line %d",(op_lu->val).n_ligne);
+    }
+    if ((op_lu -> val).type == symbole) /* si sa fait référence à une étiquette */
+    {
+      if ( ((op_lu->val).decalage > 31) || ((op_lu->val).decalage < 0) )
+      {
+        ERROR_MSG("Sa argument should be in [0;31] line %d",(op_lu->val).n_ligne);
+      }
+    }
+    else /* si la valeur de sa est directement exprimée */
+    {
+      errno = 0;
+      long int op_long = strtol((op_lu->val).nom,NULL,10);
+      if ((errno == ERANGE && (op_long == LONG_MAX || op_long == LONG_MIN)) || (errno != 0 && op_long == 0))
+      {
+        ERROR_MSG("Sa argument should be in [0;31] line %d",(op_lu->val).n_ligne);
+      }
+      if ( (op_long > 31) || (op_long < 0) )
+      {
+        ERROR_MSG("Sa argument should be in [0;31] line %d",(op_lu->val).n_ligne);
+      }
+    }
+  }
+
+  /* test si l'argument attendu est un base offset */
+
+  if(!strcmp("Bas",op_voulu))
+  {
+
+  }
+
+  /* test si l'argument attendu est un absolu */
+
+  if(!strcmp("Abs",op_voulu))
+  {
+    if (((op_lu->val).type != val_hex) && ((op_lu->val).type != val_dec) && ((op_lu->val).type != symbole))
+    {
+      ERROR_MSG("Invalid argument, Abs expected line %d",(op_lu->val).n_ligne);
+    }
+    if ((op_lu -> val).type == symbole) /* si Rel fait référence à une étiquette */
+    {
+      if ((op_lu->val).decalage % 4 != 0)
+      {
+        ERROR_MSG("Invalid jump line %d",(op_lu->val).n_ligne);
+      }
+    }
+    else /* si la valeur de Abs est directement exprimée */
+    {
+      errno = 0;
+      long int op_long = strtol((op_lu->val).nom,NULL,10);
+      if ((errno == ERANGE && (op_long == LONG_MAX || op_long == LONG_MIN)) || (errno != 0 && op_long == 0))
+      {
+        ERROR_MSG("Rel argument longer that 28 bits line %d",(op_lu->val).n_ligne);
+      }
+      if(op_long % 4 != 0)
+      {
+        ERROR_MSG("Invalid jump line %d",(op_lu->val).n_ligne);
+      }
+      char* temp;
+      temp = malloc(64*sizeof(int));
+      sprintf(temp,"%ld",int_to_int(op_long));
+      if(strlen(temp)>28)
+      {
+        ERROR_MSG("Abs argument longer that 28 bits line %d",(op_lu->val).n_ligne);
+      }
+    }
+  }
+
+  return 1;
+}
 
 void verif_regle(instru_def* dico,int pos, L_lexem L, int decal_text)
 {
@@ -292,15 +454,15 @@ void verif_regle(instru_def* dico,int pos, L_lexem L, int decal_text)
   {
     ERROR_MSG("Error : too many arguments line %d",(L->val).n_ligne);
   }
-  L->decalage = decal_text;
+  (L->val).decalage = decal_text;
   int isok = 1;
   L_lexem op_lu = L->arg;
   char** op_voulu = (dico[pos]).arguments;
   int i;
   for(i=0; i < (L->nb_op); i++)
   {
-    op_lu->decalage = decal_text;
-    if( )
+    (op_lu->val).decalage = decal_text;
+    if(!verif_arg(op_voulu[i], op_lu))
     {
       isok = 0;
     }
@@ -325,7 +487,7 @@ void verif_data(L_lexem lex, int* p_decal_data)
       {
         ERROR_MSG("Error : wrong type of argument line %d",(op->val).n_ligne);
       }
-      op->decalage = *p_decal_data;
+      (op->val).decalage = *p_decal_data;
       *p_decal_data = *p_decal_data + 4;
       op = op->arg;
     }
@@ -347,7 +509,7 @@ void verif_bss(L_lexem lex, int* p_decal_bss)
     {
       if(atoi((op->val).nom)>=0)
       {
-        op->decalage = *p_decal_bss;
+        (op->val).decalage = *p_decal_bss;
         *p_decal_bss = *p_decal_bss + atoi((op->val).nom);
         op = op->arg;
       }
@@ -410,7 +572,7 @@ L_lexem rec_verif_gram(int n_line, L_lexem L, L_lexem* p_q_etiq, L_lexem* p_l_et
     get_arg(L);
 
     /* vérification du type d'opérandes */
-    /*verif_regle(dico, indice_instru, L, *p_decal_text);
+    verif_regle(dico, indice_instru, L, *p_decal_text);
 
     /* affichage */
     printf("\ninstruction :\n");

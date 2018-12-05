@@ -3,6 +3,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <strings.h>
+#include <limits.h>
 
 #include <global.h>
 #include <notify.h>
