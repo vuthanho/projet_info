@@ -114,7 +114,7 @@ void afficher_arg_lex(L_lexem L)
 }
 
 /* note that MIPS assembly supports distinctions between lower and upper case*/
-char* getNextToken(char** token, char* current_line, int n_ligne, L_lexem* p_L, char* endline, L_lexem* p_Ls)
+char* getNextToken(char** token, char* current_line, int n_ligne, L_lexem* p_L, char* endline)
 {
     char* start = current_line;
     char* end=NULL;
@@ -147,7 +147,7 @@ char* getNextToken(char** token, char* current_line, int n_ligne, L_lexem* p_L, 
       n_lex.n_ligne = n_ligne;
       n_lex.nom = calloc(token_size+1,sizeof(*start));
       n_lex.decalage = 0;
-/*      n_lex.nom = strdup(*token);  /!\ segfault POURQUOI? */
+      /*      n_lex.nom = strdup(*token);  /!\ segfault POURQUOI? */
       if(type==registre)
       {
         sprintf(n_lex.nom,"%d",check_reg(*token));
@@ -159,11 +159,6 @@ char* getNextToken(char** token, char* current_line, int n_ligne, L_lexem* p_L, 
 
       *p_L = ajoute_lex(n_lex, *p_L);
 
-
-      if(type == symbole)
-      {
-        *p_Ls = ajoute_lex(n_lex, *p_Ls);
-      }
 
       return end;
     }
@@ -182,7 +177,7 @@ char* getNextToken(char** token, char* current_line, int n_ligne, L_lexem* p_L, 
     {
       ERROR_MSG("UNKNOWN CHAR line %d : '%c' ", n_ligne, *end);
       end++;
-      return getNextToken(token, end, n_ligne, p_L, endline, p_Ls);
+      return getNextToken(token, end, n_ligne, p_L, endline);
     }
     return NULL;
 }
@@ -197,18 +192,18 @@ char* getNextToken(char** token, char* current_line, int n_ligne, L_lexem* p_L, 
  * @brief This function performs lexical analysis of one standardized line.
  *
  */
-void lex_read_line( char *line, int nline, L_lexem* p_L, char* endline, L_lexem* p_Ls, int* p_etat)
+void lex_read_line( char *line, int nline, L_lexem* p_L, char* endline, int* p_etat)
 {
     char* token = NULL;
     char* current_address=line;
     int etat;
-    while( (current_address= getNextToken(&token, current_address, nline, p_L, endline, p_Ls)) != NULL)
+    while( (current_address= getNextToken(&token, current_address, nline, p_L, endline)) != NULL)
     {
       etat = is_new_section( ((*p_L) -> val), *p_etat );
       if ((etat != 4) && (etat != -1)) /* actualisation de *p_etat si nouvelle section */
       {
         *p_etat = etat;
-        first_check(&token, &current_address, nline, p_L, endline, p_Ls, etat);
+        first_check(&token, &current_address, nline, p_L, endline, etat);
       }
       if (etat == -1){
         ERROR_MSG("Error line %d : unexpected directive \"%s\" ", nline, ((*p_L) -> val).nom );
@@ -227,7 +222,7 @@ void lex_read_line( char *line, int nline, L_lexem* p_L, char* endline, L_lexem*
  * @brief This function loads an assembly code from a file into memory.
  *
  */
-void lex_load_file( char *file, unsigned int *nlines, L_lexem* p_L, L_lexem* p_Ls)
+void lex_load_file( char *file, unsigned int *nlines, L_lexem* p_L)
 {
 
     FILE        *fp   = NULL;
@@ -264,7 +259,7 @@ void lex_load_file( char *file, unsigned int *nlines, L_lexem* p_L, L_lexem* p_L
             (*nlines)++;
             if ( 0 != strlen(line) )
             {
-                lex_read_line(line, *nlines, p_L,endline, p_Ls, &etat);
+                lex_read_line(line, *nlines, p_L,endline, &etat);
             }
 
         }
