@@ -192,6 +192,7 @@ void get_arg(L_lexem lex)
   int n_line = (lex -> val).n_ligne;
   int nb_parenthese = 0;
   int nb_virg = 0;
+  int nb_virg_2 = 0;
   L_lexem op = lex->suiv;
   L_lexem pre_op = lex;
   int nb_op = 0;
@@ -206,6 +207,7 @@ void get_arg(L_lexem lex)
     switch ((op->val).type) {
       case 9:
         nb_virg++;
+        nb_virg_2++;
         break;
       case 6:
         if (*((op->val).nom) == 40){
@@ -240,6 +242,11 @@ void get_arg(L_lexem lex)
   }
   if (nb_virg!=0){
     ERROR_MSG("Error : missing argument after ',' line %d",n_line);
+  }
+
+  if ( (nb_op>1) && (nb_virg_2+1 != nb_op) )
+  {
+    ERROR_MSG("Error : missing ',' line %d",n_line);
   }
   lex->nb_op = nb_op;
 
