@@ -81,6 +81,7 @@ int main ( int argc, char *argv[] ) {
     free_liste(nL,0);
     free_liste(L_symb,1);
     free_liste(l_etiq,1);
+    free_dico(&dico,nb_inst);
     free(dico);
     dico = NULL;
     exit( EXIT_SUCCESS );
