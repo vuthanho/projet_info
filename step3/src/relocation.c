@@ -34,3 +34,27 @@ relocation creation_reloc (L_lexem liste, char section[10], int type ){
   return new_reloc;
 
 }
+
+void free_liste_relocation(L_relocation L)
+{
+  while(L != NULL)
+  {
+    free_liste_relocation(L->suiv);
+    free(L);
+    L = NULL;
+  }
+}
+
+void afficher_liste_relocation(L_relocation L)
+{
+  if(L!=NULL)
+  {
+    afficher_relocation(L->val);
+    afficher_liste_relocation(L->suiv);
+  }
+}
+
+void afficher_relocation(relocation reloc)
+{
+  printf("Offset : %d       Mode : %d        Value : %s    \n",reloc.decalage,reloc.type,reloc.section);
+}

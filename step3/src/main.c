@@ -66,6 +66,7 @@ int main ( int argc, char *argv[] ) {
     DEBUG_MSG("source code got %d lines", nlines);
     L_lexem nL = reverse_list_lex(L);
     free_liste(L,1);
+    detection_base_offset(nL);
     afficher_liste_lex(nL);
     char test[20];
     sprintf(test,"%ld",int_to_int(4096));

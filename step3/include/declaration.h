@@ -36,5 +36,9 @@ void verif_data(L_lexem lex, int* p_decal_data);
 L_lexem rec_verif_gram(int n_line, L_lexem L, L_lexem* p_q_etiq, L_lexem* p_l_etiq, int* p_etat, instru_def* dico,int nb_inst, int* p_decal_text, int* p_decal_data, int* p_decal_bss);
 void verif_gram(int nb_line, L_lexem L, L_lexem* p_l_etiq, instru_def* dico,int nb_inst);
 void verif_bss(L_lexem lex, int* p_decal_bss);
+void free_liste_relocation(L_relocation L);
+void afficher_liste_relocation(L_relocation L);
+void afficher_relocation(relocation reloc);
+void detection_base_offset(L_lexem L);
 
 #endif

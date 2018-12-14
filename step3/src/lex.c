@@ -91,6 +91,9 @@ void afficher_lexem(T_lexem lex)
     case 12:
       printf("[ chaine_car  ] %s\n",lex.nom);
       break;
+    case 13:
+      printf("[ base_offset ] %s\n",lex.nom);
+      break;
   }
 }
 

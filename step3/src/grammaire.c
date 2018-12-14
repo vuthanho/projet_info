@@ -80,37 +80,37 @@ void update_etat(int* p_etat, T_lexem lex)
   }
 }
 
-void first_check( char** token, char** p_current_adress, int n_ligne, L_lexem* p_L, char* endline, L_lexem* p_Ls, int etat)
+void first_check( char** token, char** p_current_adress, int n_ligne, L_lexem* p_L, char* endline, int etat)
 {
   switch (etat)
   {
     case 0:
-      *p_current_adress = getNextToken( token, *p_current_adress, n_ligne, p_L, endline, p_Ls);
+      *p_current_adress = getNextToken( token, *p_current_adress, n_ligne, p_L, endline);
       if ( strcmp( ((*p_L)->val).nom, "noreorder") )
       {
         ERROR_MSG("Error line %d : noreorder intruction expected",n_ligne);
       }
       else {
-        *p_current_adress = getNextToken( token, *p_current_adress, n_ligne, p_L, endline, p_Ls);
+        *p_current_adress = getNextToken( token, *p_current_adress, n_ligne, p_L, endline);
       }
       if (*p_current_adress != NULL) {
         ERROR_MSG("Error line %d : no arguments expected after noreorder",n_ligne);
       }
       break;
     case 1:
-      *p_current_adress = getNextToken( token, *p_current_adress, n_ligne, p_L, endline, p_Ls);
+      *p_current_adress = getNextToken( token, *p_current_adress, n_ligne, p_L, endline);
       if (*p_current_adress != NULL) {
         ERROR_MSG("Error line %d : no arguments expected after .text",n_ligne);
       }
       break;
     case 2:
-      *p_current_adress = getNextToken( token, *p_current_adress, n_ligne, p_L, endline, p_Ls);
+      *p_current_adress = getNextToken( token, *p_current_adress, n_ligne, p_L, endline);
       if (*p_current_adress != NULL) {
         ERROR_MSG("Error line %d : no arguments expected after .data",n_ligne);
       }
       break;
     case 3:
-      *p_current_adress = getNextToken( token, *p_current_adress, n_ligne, p_L, endline, p_Ls);
+      *p_current_adress = getNextToken( token, *p_current_adress, n_ligne, p_L, endline);
       if (*p_current_adress != NULL) {
         ERROR_MSG("Error line %d : no arguments expected after .bss",n_ligne);
       }
@@ -214,6 +214,16 @@ void get_arg(L_lexem lex)
         else {
           nb_parenthese--;
         }
+        break;
+      case 13:
+        nb_virg = 0;
+        nb_op++;
+        pre_op->arg = op;
+        pre_op->arg->arg = op->suiv;
+        pre_op->arg->arg->arg = op->suiv->suiv;
+        pre_op->arg->arg->arg->arg = op->suiv->suiv->suiv;
+        pre_op = op->suiv->suiv->suiv;
+        op = op->suiv->suiv->suiv;
         break;
       default:
         nb_virg = 0;
@@ -354,7 +364,10 @@ int verif_arg(char* op_voulu, L_lexem op_lu)
 
   if(!strcmp("Bas",op_voulu))
   {
-    /* à compléter */
+    if ( (op_lu->val).type != base_offset )
+    {
+      ERROR_MSG("Invalid argument, Bas expected line %d",(op_lu->val).n_ligne);
+    }
   }
 
   /* test si l'argument attendu est un absolu */

@@ -151,3 +151,33 @@ int automate(char** p_end, char* endline)
   }
   return -1;
 }
+
+void detection_base_offset(L_lexem L)
+{
+  if(L == NULL)
+  {
+    ERROR_MSG("Error : lexem list is empty");
+  }
+
+while(L->suiv != NULL)
+  {
+    if( ((L->val).type == symbole) || ((L->val).type == val_dec) || ((L->val).type == val_hex))
+    {
+        if( (L->suiv != NULL) && (((L->suiv)->val).type == parenthese) )
+        {
+          if( ((L->suiv)->suiv != NULL)  && ((((L->suiv)->suiv)->val).type == registre)  )
+          {
+            if( (((L->suiv)->suiv)->suiv) != NULL && ((((L->suiv)->suiv)->suiv)->val).type == parenthese)
+            {
+              (L->val).type = base_offset;
+              ((L->suiv)->val).type = base_offset;
+              (((L->suiv)->suiv)->val).type = base_offset;
+              ((((L->suiv)->suiv)->suiv)->val).type = base_offset;
+            }
+          }
+        }
+    }
+    L=L->suiv;
+  }
+
+}

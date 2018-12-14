@@ -25,7 +25,7 @@ typedef struct {
   char* arguments[3];
 } instru_def;
 
-enum type_lex{unknown, symbole, val_dec, val_hex, registre, etiquette, parenthese, new_line, deux_points, virgule, comment, directive, chaine_car};
+enum type_lex{unknown, symbole, val_dec, val_hex, registre, etiquette, parenthese, new_line, deux_points, virgule, comment, directive, chaine_car, base_offset};
 
 enum type_reloc{R_MIPS_32=2, R_MIPS_26=4, R_MIPS_HI16=5, R_MIPS_LO16=6};
 
