@@ -56,14 +56,13 @@ int main ( int argc, char *argv[] ) {
     }
 
     L_lexem  L = NULL;
-    L_lexem  L_symb = NULL;
     L_lexem  l_etiq = NULL;
 
     int nb_inst;
     instru_def* dico = load_dico("dico/dico_instr",&nb_inst);
 
     /* ---------------- do the lexical analysis -------------------*/
-    lex_load_file( file, &nlines, &L, &L_symb);
+    lex_load_file( file, &nlines, &L);
     DEBUG_MSG("source code got %d lines", nlines);
     L_lexem nL = reverse_list_lex(L);
     free_liste(L,1);
@@ -79,7 +78,6 @@ int main ( int argc, char *argv[] ) {
     /* TODO free everything properly*/
 
     free_liste(nL,0);
-    free_liste(L_symb,1);
     free_liste(l_etiq,1);
     free_dico(&dico,nb_inst);
     free(dico);
