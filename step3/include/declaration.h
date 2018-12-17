@@ -40,5 +40,9 @@ void free_liste_relocation(L_relocation L);
 void afficher_liste_relocation(L_relocation L);
 void afficher_relocation(relocation reloc);
 void detection_base_offset(L_lexem L);
+void reloc(L_relocation* p_rel_text, L_relocation* p_rel_data, L_lexem L, instru_def* dico, int nb_instru);
+char in_dico_reloc(T_lexem lex,instru_def* dico,int nb_inst,int* p_is_inst);
+relocation creation_reloc (T_lexem lex, int section, char type );
+L_relocation ajout_relocation(L_relocation L_r, relocation reloc);
 
 #endif

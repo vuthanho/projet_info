@@ -74,12 +74,31 @@ int main ( int argc, char *argv[] ) {
     printf("\n%ld \n",sizeof(unsigned long));
     verif_gram(nlines, nL, &l_etiq, dico, nb_inst);
 
+    L_relocation rel_text = NULL ;
+    L_relocation rel_data = NULL;
+
+    reloc(&rel_text,&rel_data, nL, dico,nb_inst);
+
+    printf("\n .rel.text \n");
+    afficher_liste_relocation(rel_text);
+
+    printf("\n .rel.data \n");
+    afficher_liste_relocation(rel_data);
+
+    printf("\n bug \n");
+    L_relocation bug = NULL;
+    afficher_liste_relocation(bug);
+
+
+
     /* ---------------- Free memory and terminate -------------------*/
 
     /* TODO free everything properly*/
 
     free_liste(nL,0);
     free_liste(l_etiq,1);
+    afficher_liste_relocation(rel_text);
+    afficher_liste_relocation(rel_data);
     free_dico(&dico,nb_inst);
     free(dico);
     dico = NULL;
